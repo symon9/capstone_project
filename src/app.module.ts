@@ -1,16 +1,13 @@
-// npm install @nestjs/typeorm typeorm pg bcrypt @nestjs/config @nestjs/jwt @nestjs/passport passport passport-jwt class-validator class-transformer
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { BooksModule } from './books/books.module';
 import { MembersModule } from './members/members.module';
 import { BorrowsModule } from './borrows/borrows.module';
 import { AppController } from './app.controller';
-/*import { Book } from './books/book.entity';
-import { Member } from './members/member.entity';
-import { Borrow } from './borrows/borrow.entity';
-import { User } from './auth/user.entity';*/
+import { JwtAuthGuard, RolesGuard } from './auth/guards';
 
 @Module({
   imports: [
@@ -37,6 +34,15 @@ import { User } from './auth/user.entity';*/
     BorrowsModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}

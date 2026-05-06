@@ -1,14 +1,18 @@
-import { IsEmail, IsString, MinLength, IsNotEmpty} from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
 
 export class RegisterDto {
   @IsString()
-  @IsNotEmpty()
   name: string;
 
   @IsEmail()
   email: string;
 
   @IsString()
-  @MinLength(6) //password must be at least 6 character!!!
+  @MinLength(8)
   password: string;
+
+  // role is accepted but intentionally ignored — always assigned 'member'
+  @IsOptional()
+  @IsString()
+  role?: string;
 }

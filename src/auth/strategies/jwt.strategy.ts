@@ -1,30 +1,51 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
+import { PassportStrategy } from '@nestjs/passport';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { User } from '../user.entity';
+
+interface JwtPayload {
+  sub: number;
+  email: string;
+  role: string;
+}
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(config: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {
     super({
-      // Tells Passport where to find the token — in the Authorization header
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-
-      // If token is expired, reject it
       ignoreExpiration: false,
-
-      // The same secret used to sign tokens — must match what AuthService uses
-      secretOrKey: config.get<string>('JWT_SECRET'),
+      secretOrKey: configService.get<string>('JWT_SECRET') ?? '',
     });
   }
 
-  // This runs after the token signature is verified
-  // Whatever you return here gets attached to request.user
-  async validate(payload: { sub: string; email: string; role: string }) {
+  async validate(payload: JwtPayload) {
+    // Access tokens should remain valid for their lifetime unless the account
+    // itself is no longer allowed to authenticate.
+    const user = await this.userRepository.findOne({
+      where: { id: payload.sub },
+      select: ['id', 'name', 'email', 'role', 'isActive'],
+    });
+
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException(
+        'Authentication failed: Session invalid or account deactivated',
+      );
+    }
+
     return {
-      id: payload.sub,
-      email: payload.email,
-      role: payload.role,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+
     };
   }
 }

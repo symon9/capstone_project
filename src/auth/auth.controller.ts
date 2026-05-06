@@ -1,31 +1,57 @@
-import { Controller, Post, Get, Body } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import { Public } from './decorators/public.decorator';
-import { CurrentUser } from './decorators/current-user.decorator';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
+import { AuthService, AuthResponse } from './auth.service';
+import { RegisterDto, LoginDto } from './dto';
+import { Public, CurrentUser } from './decorators';
 
+interface JwtUser {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+}
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // TODO:: Add login and register endpoints here
-  // @Public() simply means that the JwtAuthGuard skips this route
   @Public()
   @Post('register')
-  register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+  register(@Body() registerDto: RegisterDto): Promise<AuthResponse> {
+    return this.authService.register(registerDto);
   }
 
   @Public()
   @Post('login')
-  login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  @HttpCode(HttpStatus.OK)
+  login(@Body() loginDto: LoginDto): Promise<AuthResponse> {
+    return this.authService.login(loginDto);
   }
 
-  // Protected route — shows how @CurrentUser() works
-  @Get('profile')
-  getProfile(@CurrentUser() user: any) {
-    return this.authService.getProfile(user.id);
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout(
+    @CurrentUser() user: JwtUser,
+  ): Promise<{ status: string; message: string }> {
+    return this.authService.logout(user.id);
+  }
+
+  @Get('me')
+  getMe(@CurrentUser() user: JwtUser): {
+    status: string;
+    message: string;
+    user: JwtUser;
+  } {
+    return {
+      status: 'success',
+      message: 'User profile retrieved successfully.',
+      user,
+    };
+
   }
 }
