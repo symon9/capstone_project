@@ -32,14 +32,28 @@ async function bootstrap() {
         'REST API for managing library books, members, borrowing records, and authentication.',
       )
       .setVersion('1.0')
-      .addBearerAuth()
+      .addBearerAuth(
+        // adds the Authorize button to Swagger UI
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'Enter your JWT token here',
+        },
+        'JWT-auth', // this name is referenced in @ApiBearerAuth() on controllers
+      )
       .build();
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document);
+    SwaggerModule.setup('api', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true, // keeps your token after page refresh
+      },
+    });
   }
 
   await app.listen(port);
   console.log(`Application is running on: http://localhost:${port}`);
+  console.log(`Swagger docs: http://localhost:3000/api`);
 }
 
 bootstrap().catch((err) => {
