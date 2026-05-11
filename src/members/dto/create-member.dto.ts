@@ -1,4 +1,10 @@
-import { IsString, IsEmail, IsEnum, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsNotEmpty,
+} from 'class-validator';
 import { MembershipType } from '../member.entity';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -29,11 +35,11 @@ export class CreateMemberDto {
 
   @ApiPropertyOptional({
     description: 'Membership tier',
-    enum: ['basic', 'premium'],
-    example: 'basic',
-    default: 'basic',
+    enum: MembershipType,
+    example: MembershipType.BASIC,
+    default: MembershipType.BASIC,
   })
-  @IsEnum(['basic', 'premium'])
+  @IsEnum(MembershipType)
   @IsOptional()
-  membershipType?: 'basic' | 'premium';
+  membershipType?: MembershipType;
 }

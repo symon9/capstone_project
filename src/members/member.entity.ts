@@ -30,9 +30,13 @@ export class Member {
   @Column({ nullable: true })
   phone: string;
 
-   @ApiProperty({ enum: ['basic', 'premium'], example: 'basic' })
-  @Column({ type: 'enum', enum: ['basic', 'premium'], default: 'basic' })
-  membershipType: 'basic' | 'premium';
+  @ApiProperty({ enum: MembershipType, example: MembershipType.BASIC })
+  @Column({
+    type: 'enum',
+    enum: MembershipType,
+    default: MembershipType.BASIC,
+  })
+  membershipType: MembershipType;
 
   @ApiProperty({ example: true })
   @Column({ default: true })

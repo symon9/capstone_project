@@ -1,5 +1,12 @@
-import { IsString, IsNumber, IsOptional } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsNotEmpty,
+  IsPositive,
+  Min,
+} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateBookDto {
   @ApiProperty({
@@ -43,4 +50,12 @@ export class CreateBookDto {
   @IsPositive()
   @Min(1)
   totalQuantity: number;
+
+  @ApiPropertyOptional({
+    description: 'Number of copies currently available for borrowing',
+    example: 3,
+  })
+  @IsNumber()
+  @IsOptional()
+  availableCopies?: number;
 }
