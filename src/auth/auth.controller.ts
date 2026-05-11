@@ -31,7 +31,11 @@ export class AuthController {
   @Public()
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({ status: 201, description: 'User successfully registered.' })
+  @ApiResponse({
+    status: 201,
+    description: 'User successfully registered.',
+    type: AuthResponse,
+  })
   @ApiResponse({ status: 409, description: 'Email already in use.' })
   register(@Body() registerDto: RegisterDto): Promise<AuthResponse> {
     return this.authService.register(registerDto);
@@ -41,7 +45,11 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Log in a user' })
-  @ApiResponse({ status: 200, description: 'User successfully logged in.' })
+  @ApiResponse({
+    status: 200,
+    description: 'User successfully logged in.',
+    type: AuthResponse,
+  })
   @ApiResponse({ status: 401, description: 'Invalid credentials.' })
   login(@Body() loginDto: LoginDto): Promise<AuthResponse> {
     return this.authService.login(loginDto);
@@ -54,6 +62,13 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'New access and refresh tokens issued.',
+    schema: {
+      example: {
+        status: 'success',
+        accessToken: 'eyJhbGci...',
+        refreshToken: 'eyJhbGci...',
+      },
+    },
   })
   @ApiResponse({ status: 401, description: 'Invalid refresh token.' })
   refresh(

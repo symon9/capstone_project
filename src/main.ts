@@ -35,11 +35,16 @@ async function bootstrap() {
       .addBearerAuth()
       .build();
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document);
+    SwaggerModule.setup('api', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true, // keeps your token after page refresh
+      },
+    });
   }
 
   await app.listen(port);
   console.log(`Application is running on: http://localhost:${port}`);
+  console.log(`Swagger docs: http://localhost:3000/api`);
 }
 
 bootstrap().catch((err) => {

@@ -14,8 +14,13 @@ import { User } from './user.entity';
 import { UserRole } from './user-role.enum';
 import { RegisterDto, LoginDto } from './dto';
 
-export interface AuthTokens {
+import { ApiProperty } from '@nestjs/swagger';
+
+export class AuthTokens {
+  @ApiProperty({ description: 'JWT access token' })
   accessToken: string;
+
+  @ApiProperty({ description: 'JWT refresh token' })
   refreshToken: string;
 }
 
@@ -25,16 +30,34 @@ interface JwtPayload {
   role: string;
 }
 
-export interface AuthResponse {
+class UserResponse {
+  @ApiProperty({ example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890' })
+  id: string;
+
+  @ApiProperty({ example: 'John Doe' })
+  name: string;
+
+  @ApiProperty({ example: 'john@library.com' })
+  email: string;
+
+  @ApiProperty({ example: 'member' })
+  role: string;
+}
+
+export class AuthResponse {
+  @ApiProperty({ example: 'success' })
   status: string;
+
+  @ApiProperty({ example: 'Authentication successful.' })
   message: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-  };
+
+  @ApiProperty({ type: UserResponse })
+  user: UserResponse;
+
+  @ApiProperty({ description: 'JWT access token' })
   accessToken: string;
+
+  @ApiProperty({ description: 'JWT refresh token' })
   refreshToken: string;
 }
 
